@@ -7,6 +7,10 @@ TagManager:
   - Ground
   - PickUp
   - Enemy
+  - Trap
+  - Api
+  - Air
+  - berubah
   layers:
   - Default
   - TransparentFX

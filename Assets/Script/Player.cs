@@ -7,13 +7,17 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
     private Collider2D coll;
+    private SpriteRenderer sprite;
 
     // variabel penentu
     private float horizontalValue;
+    private const float gCheckRadius = 0.2f;
     private bool facingRigth = true;
     private bool IsRunning = false;
     private bool jumpdelay;
-    
+    private bool isGrounded = false;
+    [SerializeField] private int Change;
+
 
     // variabel yang di serialisasi agar muncul di editor
     [SerializeField] private float speed = 5f;
@@ -21,6 +25,12 @@ public class Player : MonoBehaviour
     [SerializeField] private float JumpForce = 5f;
     [SerializeField] private LayerMask ground;
     [SerializeField] private int Gem = 0;
+    [SerializeField] Transform gCheckColl;
+    [SerializeField] private Sprite Fire;
+    [SerializeField] private Sprite Water;
+    [SerializeField] public Transform firePoint;
+    [SerializeField] public GameObject Merah, Biru;
+
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +38,8 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         coll = GetComponent<Collider2D>();
+        sprite = GetComponent<SpriteRenderer>();
+
     }
 
     // Update is called once per frame
@@ -37,11 +49,13 @@ public class Player : MonoBehaviour
         horizontalValue = Input.GetAxisRaw("Horizontal");
         dash();
         lompat();
-        
+        Swap();
+        Shoot();
     }
 
     private void FixedUpdate()
     {
+        groundCheck();
         Move(horizontalValue);
     }
 
@@ -76,16 +90,17 @@ public class Player : MonoBehaviour
         //tekan spasi dan menyentuh layer ground = lompat
         if (Input.GetButtonDown("Jump"))
         {
-            if (coll.IsTouchingLayers(ground))
+            if (isGrounded)
             {
                 //perpindahan vector 2 y.
                 rb.velocity = new Vector2(rb.velocity.x, JumpForce);
             }
+
             //menjalankan fungsi jumpdelay
             else
             {
-                StartCoroutine(JumpDelay());
-                if(jumpdelay){
+                if (jumpdelay)
+                {
                     rb.velocity = new Vector2(rb.velocity.x, JumpForce);
                 }
             }
@@ -138,6 +153,51 @@ public class Player : MonoBehaviour
         transform.Rotate(0f, 180f, 0f);
     }
 
+    private void Swap()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            sprite.sprite = Fire;
+            Change = 1;
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            sprite.sprite = Water;
+            Change = -1;
+        }
+    }
+
+    private void groundCheck()
+    {
+        bool wasGrounded = isGrounded;
+        isGrounded = false;
+
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(gCheckColl.position, gCheckRadius, ground);
+        if (colliders.Length > 0)
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            //Un-parent the transform
+            transform.parent = null;
+
+            if (wasGrounded)
+                StartCoroutine(JumpDelay());
+        }
+    }
+
+    private void Shoot()
+    {
+        if (Input.GetButtonDown("Fire1") && Change > 0)
+        {
+            Instantiate(Merah, firePoint.position, firePoint.rotation);
+        }
+        if (Input.GetButtonDown("Fire1") && Change < 0)
+        {
+            Instantiate(Biru, firePoint.position, firePoint.rotation);
+        }
+    }
     //method ketika menyentuh objebt dengan tag PickUp
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -156,6 +216,8 @@ public class Player : MonoBehaviour
             FindObjectOfType<LifeCount>().LoseLife();
         }
     }
+
+    
 
 
 }
