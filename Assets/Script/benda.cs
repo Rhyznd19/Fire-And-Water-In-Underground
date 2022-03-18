@@ -10,13 +10,13 @@ public class benda : MonoBehaviour
         coll = GetComponent<Collider2D>();
     }
     //darah musuh
-    private void OnTriggerEnter2D(Collider2D Fire)
+    private void OnTriggerEnter2D(Collider2D benda)
     {
-        if (Fire.gameObject.tag == "Api")
+        if (benda.gameObject.tag == "Api")
         {
             Destroy(gameObject);
         }
-        else
+        if(benda.gameObject.tag == "Air")
         {
             this.GetComponent<Collider2D>().isTrigger = false;
         }

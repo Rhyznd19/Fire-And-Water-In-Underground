@@ -16,7 +16,8 @@ public class Player : MonoBehaviour
     private bool IsRunning = false;
     private bool jumpdelay;
     private bool isGrounded = false;
-    [SerializeField] private int Change;
+    private bool Canmove = true;
+    
 
 
     // variabel yang di serialisasi agar muncul di editor
@@ -30,6 +31,9 @@ public class Player : MonoBehaviour
     [SerializeField] private Sprite Water;
     [SerializeField] public Transform firePoint;
     [SerializeField] public GameObject Merah, Biru;
+    [SerializeField] private int Change;
+    [SerializeField] private float HurtForce = 5f;
+    [SerializeField] private int LivesRemaining;
 
 
     // Start is called before the first frame update
@@ -56,7 +60,11 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         groundCheck();
-        Move(horizontalValue);
+        if (Canmove == true)
+        {
+            Move(horizontalValue);
+        }
+        
     }
 
     //method bergerak
@@ -124,9 +132,32 @@ public class Player : MonoBehaviour
     //keluar dari layer ground
     IEnumerator JumpDelay()
     {
+        // waktu sebelum ground hilang
         jumpdelay = true;
         yield return new WaitForSeconds(0.2f);
         jumpdelay = false;
+    }
+
+    IEnumerator WaitShoot()
+    {
+        // menuggu sebenter baru menembak
+        yield return new WaitForSeconds(0.2f);
+        // bola merah
+        if (Change > 0) {
+             Instantiate(Merah, firePoint.position, firePoint.rotation);
+        }
+        // bola biru
+        else
+        {
+            Instantiate(Biru, firePoint.position, firePoint.rotation);
+        }
+    }
+
+    IEnumerator DisableMove()
+    {
+        Canmove = false;
+        yield return new WaitForSeconds(.5f);
+        Canmove = true;
     }
 
     //method lari cepat
@@ -157,13 +188,13 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            sprite.sprite = Fire;
             Change = 1;
+            anim.SetFloat("Char", Change);
         }
         if (Input.GetKeyDown(KeyCode.E))
         {
-            sprite.sprite = Water;
             Change = -1;
+            anim.SetFloat("Char", Change);
         }
     }
 
@@ -187,15 +218,38 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void LoseLife()
+    {
+        LivesRemaining--;
+        anim.SetBool("dead", false);
+        //jika live habis kita mati
+        if (LivesRemaining == 0)
+        {
+            anim.SetBool("dead", true);
+            Debug.Log("Mati");
+            Canmove = false;
+        }
+    }
+
     private void Shoot()
     {
+        // jika change lebih besar 0 menembak bola merah 
         if (Input.GetButtonDown("Fire1") && Change > 0)
         {
-            Instantiate(Merah, firePoint.position, firePoint.rotation);
+            StartCoroutine(WaitShoot());
+            anim.SetBool("tembak", true);
         }
+        // jika change lebih kecil 0 menembak bola biru
         if (Input.GetButtonDown("Fire1") && Change < 0)
         {
-            Instantiate(Biru, firePoint.position, firePoint.rotation);
+            StartCoroutine(WaitShoot());
+            anim.SetBool("tembak", true);
+
+        }
+        // jika input di lepas animasi berhenti
+        if (Input.GetButtonUp("Fire1"))
+        {
+            anim.SetBool("tembak", false);
         }
     }
     //method ketika menyentuh objebt dengan tag PickUp
@@ -207,17 +261,30 @@ public class Player : MonoBehaviour
             Destroy(collision.gameObject);
             Gem += 1;
         }
+        
     }
 
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.tag == "Enemy")
         {
-            FindObjectOfType<LifeCount>().LoseLife();
+            LoseLife();
+            
+            if (other.gameObject.transform.position.x > transform.position.x)
+            {
+                rb.velocity = new Vector2(-HurtForce, 1);
+                StartCoroutine(DisableMove());
+            }
+            else
+            {
+                rb.velocity = new Vector2(HurtForce, 1);
+                StartCoroutine(DisableMove());
+            }
+            
+        }
+        if (other.gameObject.tag == "Trap")
+        {
+            Destroy(gameObject);
         }
     }
-
-    
-
-
 }
