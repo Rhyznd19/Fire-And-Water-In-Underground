@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     private bool isGrounded = false;
     private int BolaApi;
     private int BolaAir;
-    private bool isDead=false;
+    private bool stopMove=false;
 
     // variabel yang di serialisasi agar muncul di editor
     [SerializeField] private float speed = 5f;
@@ -35,6 +35,7 @@ public class Player : MonoBehaviour
     [SerializeField] private int Change;
     [SerializeField] private int LivesRemaining;
     [SerializeField] private GameOver gameover;
+    [SerializeField] private Tutor tutor1;
 
 
 
@@ -62,7 +63,7 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isDead)
+        if (!stopMove)
         {
             groundCheck();
             Move(horizontalValue);
@@ -257,11 +258,16 @@ public class Player : MonoBehaviour
     //method ketika menyentuh objebt dengan tag PickUp
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "PickUp")
+        if (collision.tag == "PickUp" || collision.tag == "Tutor1")
         {
             // jika menyentuh maka object akan hancur dan gem bertambah 1
             Destroy(collision.gameObject);
             Gem += 1;
+        }
+
+        if(collision.tag == "Tutor1")
+        {
+            Tutor1();
         }
 
         if (collision.tag == "BolaAPi")
@@ -289,9 +295,13 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void GameOver()
+    private void GameOver()
     {
         gameover.Setup(Gem);
-        isDead = true;
+    }
+
+    private void Tutor1()
+    {
+        tutor1.Appear();
     }
 }
