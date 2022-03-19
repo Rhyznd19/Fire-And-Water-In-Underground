@@ -11,6 +11,8 @@ TagManager:
   - Api
   - Air
   - berubah
+  - BolaAPi
+  - BolaAir
   layers:
   - Default
   - TransparentFX

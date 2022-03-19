@@ -16,7 +16,8 @@ public class Player : MonoBehaviour
     private bool IsRunning = false;
     private bool jumpdelay;
     private bool isGrounded = false;
-    private bool Canmove = true;
+    private int BolaApi;
+    private int BolaAir;
     
 
 
@@ -32,7 +33,6 @@ public class Player : MonoBehaviour
     [SerializeField] public Transform firePoint;
     [SerializeField] public GameObject Merah, Biru;
     [SerializeField] private int Change;
-    [SerializeField] private float HurtForce = 5f;
     [SerializeField] private int LivesRemaining;
 
 
@@ -60,11 +60,7 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         groundCheck();
-        if (Canmove == true)
-        {
-            Move(horizontalValue);
-        }
-        
+        Move(horizontalValue); 
     }
 
     //method bergerak
@@ -144,20 +140,21 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         // bola merah
         if (Change > 0) {
-             Instantiate(Merah, firePoint.position, firePoint.rotation);
+            if (BolaApi != 0)
+            {
+                BolaApi--;
+                Instantiate(Merah, firePoint.position, firePoint.rotation);
+            }
         }
         // bola biru
         else
         {
-            Instantiate(Biru, firePoint.position, firePoint.rotation);
+            if (BolaAir != 0)
+            {
+                BolaAir--;
+                Instantiate(Biru, firePoint.position, firePoint.rotation);
+            }           
         }
-    }
-
-    IEnumerator DisableMove()
-    {
-        Canmove = false;
-        yield return new WaitForSeconds(.5f);
-        Canmove = true;
     }
 
     //method lari cepat
@@ -227,20 +224,19 @@ public class Player : MonoBehaviour
         {
             anim.SetBool("dead", true);
             Debug.Log("Mati");
-            Canmove = false;
         }
     }
 
     private void Shoot()
     {
         // jika change lebih besar 0 menembak bola merah 
-        if (Input.GetButtonDown("Fire1") && Change > 0)
+        if (Input.GetButtonDown("Fire1") && Change > 0 && BolaApi > 0)
         {
             StartCoroutine(WaitShoot());
             anim.SetBool("tembak", true);
         }
         // jika change lebih kecil 0 menembak bola biru
-        if (Input.GetButtonDown("Fire1") && Change < 0)
+        if (Input.GetButtonDown("Fire1") && Change < 0 && BolaAir > 0)
         {
             StartCoroutine(WaitShoot());
             anim.SetBool("tembak", true);
@@ -261,25 +257,25 @@ public class Player : MonoBehaviour
             Destroy(collision.gameObject);
             Gem += 1;
         }
-        
+
+        if (collision.tag == "BolaAPi")
+        {
+            Destroy(collision.gameObject);
+            BolaApi += 1;
+        }
+        if (collision.tag == "BolaAir")
+        {
+            Destroy(collision.gameObject);
+            BolaAir += 1;
+        }
+
     }
 
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.tag == "Enemy")
         {
-            LoseLife();
-            
-            if (other.gameObject.transform.position.x > transform.position.x)
-            {
-                rb.velocity = new Vector2(-HurtForce, 1);
-                StartCoroutine(DisableMove());
-            }
-            else
-            {
-                rb.velocity = new Vector2(HurtForce, 1);
-                StartCoroutine(DisableMove());
-            }
+            Destroy(gameObject);
             
         }
         if (other.gameObject.tag == "Trap")
