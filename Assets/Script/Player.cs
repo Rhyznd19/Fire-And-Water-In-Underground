@@ -73,9 +73,12 @@ public class Player : MonoBehaviour
     //method bergerak
     private void Move(float dir)
     {
+        
         //jika shift maka speed up
         if (IsRunning)
+        {
             dir *= runSpeed;
+        } 
         //vector2 buat rb
         rb.velocity = new Vector2(dir * speed, rb.velocity.y);
     
@@ -290,6 +293,14 @@ public class Player : MonoBehaviour
             GameOver();
         }
         if (other.gameObject.tag == "Trap")
+        {
+            GameOver();
+        }
+        if (other.gameObject.tag == "MosterApi")
+        {
+            GameOver();
+        }
+        if (other.gameObject.tag == "MosterAir")
         {
             GameOver();
         }

@@ -18,11 +18,11 @@ public class CameraMove : MonoBehaviour
     private void Camera()
     {
         Vector3 Player = player.position + offset;
-        /*Vector3 Bound = new Vector3(
+        Vector3 Bound = new Vector3(
             Mathf.Clamp(player.position.x, minValue.x, maxValue.x),
             Mathf.Clamp(player.position.y, minValue.y, maxValue.y),
-            Mathf.Clamp(player.position.z, minValue.z, maxValue.z));*/
-        Vector3 smooth = Vector3.Lerp(transform.position, Player, smoothcamera * Time.fixedDeltaTime);
+            Mathf.Clamp(player.position.z, minValue.z, maxValue.z));
+        Vector3 smooth = Vector3.Lerp(transform.position, Bound, smoothcamera * Time.fixedDeltaTime);
         transform.position = smooth;
     }
 }
