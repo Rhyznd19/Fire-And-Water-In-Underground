@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    
     private Rigidbody2D rb;
     private Animator anim;
     private Collider2D coll;
@@ -18,8 +19,7 @@ public class Player : MonoBehaviour
     private bool isGrounded = false;
     private int BolaApi;
     private int BolaAir;
-    
-
+    private bool isDead=false;
 
     // variabel yang di serialisasi agar muncul di editor
     [SerializeField] private float speed = 5f;
@@ -34,6 +34,8 @@ public class Player : MonoBehaviour
     [SerializeField] public GameObject Merah, Biru;
     [SerializeField] private int Change;
     [SerializeField] private int LivesRemaining;
+    [SerializeField] private GameOver gameover;
+
 
 
     // Start is called before the first frame update
@@ -43,6 +45,7 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
         coll = GetComponent<Collider2D>();
         sprite = GetComponent<SpriteRenderer>();
+       
 
     }
 
@@ -59,8 +62,11 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        groundCheck();
-        Move(horizontalValue); 
+        if (!isDead)
+        {
+            groundCheck();
+            Move(horizontalValue);
+        }
     }
 
     //method bergerak
@@ -275,12 +281,17 @@ public class Player : MonoBehaviour
     {
         if (other.gameObject.tag == "Enemy")
         {
-            Destroy(gameObject);
-            
+            GameOver();
         }
         if (other.gameObject.tag == "Trap")
         {
-            Destroy(gameObject);
+            GameOver();
         }
+    }
+
+    public void GameOver()
+    {
+        gameover.Setup(Gem);
+        isDead = true;
     }
 }
