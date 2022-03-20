@@ -242,14 +242,14 @@ public class Player : MonoBehaviour
         // jika change lebih besar 0 menembak bola merah 
         if (Input.GetButtonDown("Fire1") && Change > 0 && BolaApi > 0)
         {
-            StartCoroutine(WaitShoot());
             anim.SetBool("tembak", true);
+            StartCoroutine(WaitShoot());
         }
         // jika change lebih kecil 0 menembak bola biru
         if (Input.GetButtonDown("Fire1") && Change < 0 && BolaAir > 0)
         {
-            StartCoroutine(WaitShoot());
             anim.SetBool("tembak", true);
+            StartCoroutine(WaitShoot());
 
         }
         // jika input di lepas animasi berhenti
@@ -296,11 +296,11 @@ public class Player : MonoBehaviour
         {
             GameOver();
         }
-        if (other.gameObject.tag == "MosterApi")
+        if (other.gameObject.tag == "MonsterApi")
         {
             GameOver();
         }
-        if (other.gameObject.tag == "MosterAir")
+        if (other.gameObject.tag == "MonsterAir")
         {
             GameOver();
         }
